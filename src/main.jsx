@@ -12,20 +12,16 @@ function App() {
     }
 
     try {
-      const [lat, lon] = gps.split(',')
-
       const response = await fetch(
-        `https://api.mapy.cz/v1/rgeocode?lon=${lon}&lat=${lat}`,
-        {
-          headers: {
-            'X-API-Key': import.meta.env.VITE_MAPY_API_KEY
-          }
-        }
+        `/api/mapy-lookup?gps=${encodeURIComponent(gps)}`
       )
 
       const data = await response.json()
 
-      const adresa = data?.items?.[0]?.name || 'Neznámé místo'
+      const adresa =
+        data?.items?.[0]?.name ||
+        data?.features?.[0]?.properties?.label ||
+        'Neznámé místo'
 
       let nazev = adresa
         .replace(/AlzaBox/gi, '')
