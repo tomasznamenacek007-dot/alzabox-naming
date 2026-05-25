@@ -5,14 +5,39 @@ function App() {
   const [gps, setGps] = useState('')
   const [vysledek, setVysledek] = useState('')
 
-  function generovatNazev() {
+  async function generovatNazev() {
     if (!gps) {
       setVysledek('Zadej GPS souřadnice')
       return
     }
 
-    const cast = gps.replace(',', '-')
-    setVysledek('BOX-' + cast)
+    try {
+      const [lat, lon] = gps.split(',')
+
+      const response = await fetch(
+        `https://api.mapy.cz/v1/rgeocode?lon=${lon}&lat=${lat}`,
+        {
+          headers: {
+            'X-API-Key': import.meta.env.VITE_MAPY_API_KEY
+          }
+        }
+      )
+
+      const data = await response.json()
+
+      const adresa = data?.items?.[0]?.name || 'Neznámé místo'
+
+      let nazev = adresa
+        .replace(/AlzaBox/gi, '')
+        .replace(/,/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+      setVysledek(nazev)
+
+    } catch (err) {
+      setVysledek('Chyba při načítání map')
+    }
   }
 
   return (
@@ -24,7 +49,7 @@ function App() {
       <input
         value={gps}
         onChange={(e) => setGps(e.target.value)}
-        placeholder="Sem přijde GPS"
+        placeholder="50.0874511,14.420671"
         style={{ padding: '10px', width: '300px' }}
       />
 
