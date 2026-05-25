@@ -6,11 +6,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    const [lat, lon] = gps.split(',')
+
     const response = await fetch(
-      `https://api.mapy.cz/v1/rgeocode?lon=${gps.split(',')[1]}&lat=${gps.split(',')[0]}`,
+      `https://api.mapy.cz/v1/rgeocode?lon=${lon}&lat=${lat}`,
       {
         headers: {
-          'X-Mapy-Api-Key': process.env.VITE_MAPY_API_KEY
+          'X-API-Key': process.env.VITE_MAPY_API_KEY
         }
       }
     )
@@ -18,7 +20,11 @@ export default async function handler(req, res) {
     const data = await response.json()
 
     res.status(200).json(data)
+
   } catch (err) {
-    res.status(500).json({ error: 'Chyba API' })
+    res.status(500).json({
+      error: 'Chyba API',
+      detail: err.message
+    })
   }
 }
