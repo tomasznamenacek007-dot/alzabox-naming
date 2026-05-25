@@ -18,10 +18,14 @@ function App() {
 
       const data = await response.json()
 
+      console.log('Mapy.cz odpověď:', data)
+
       const adresa =
         data?.items?.[0]?.name ||
+        data?.items?.[0]?.label ||
+        data?.result?.label ||
         data?.features?.[0]?.properties?.label ||
-        'Neznámé místo'
+        JSON.stringify(data)
 
       let nazev = adresa
         .replace(/AlzaBox/gi, '')
@@ -32,6 +36,7 @@ function App() {
       setVysledek(nazev)
 
     } catch (err) {
+      console.error(err)
       setVysledek('Chyba při načítání map')
     }
   }
