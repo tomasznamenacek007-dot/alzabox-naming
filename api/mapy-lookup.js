@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       `https://api.mapy.cz/v1/rgeocode?lon=${lon}&lat=${lat}`,
       {
         headers: {
-          'X-API-Key': process.env.MAPY_API_KEY
+          'X-Mapy-Api-Key': process.env.MAPY_API_KEY
         }
       }
     )
