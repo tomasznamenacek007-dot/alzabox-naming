@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 function App() {
   const [gps, setGps] = useState('')
   const [vysledek, setVysledek] = useState('')
+  const [debug, setDebug] = useState('')
 
   function vytvorNazev(data) {
     const geoItem = data?.geo?.items?.[0]
@@ -40,13 +41,16 @@ function App() {
       )
 
       const data = await response.json()
+
       console.log(data)
 
       setVysledek(vytvorNazev(data))
+      setDebug(JSON.stringify(data, null, 2))
 
     } catch (err) {
       console.error(err)
       setVysledek('Chyba při načítání')
+      setDebug(String(err))
     }
   }
 
@@ -72,6 +76,18 @@ function App() {
       <div style={{ marginTop: '30px', fontSize: '24px', fontWeight: 'bold' }}>
         {vysledek}
       </div>
+
+      <pre
+        style={{
+          marginTop: '30px',
+          padding: '20px',
+          background: '#f4f4f4',
+          whiteSpace: 'pre-wrap',
+          fontSize: '12px'
+        }}
+      >
+        {debug}
+      </pre>
     </div>
   )
 }
