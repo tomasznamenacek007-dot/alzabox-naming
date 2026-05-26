@@ -6,37 +6,32 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [lat, lon] = gps.split(',')
+    const [latRaw, lonRaw] = gps.split(',')
+    const lat = latRaw.trim()
+    const lon = lonRaw.trim()
 
-    // Reverse geocoding
+    const headers = {
+      'X-Mapy-Api-Key': process.env.MAPY_API_KEY
+    }
+
     const geoResponse = await fetch(
-      `https://api.mapy.cz/v1/rgeocode?lon=${lon}&lat=${lat}`,
-      {
-        headers: {
-          'X-Mapy-Api-Key': process.env.MAPY_API_KEY
-        }
-      }
+      `https://api.mapy.cz/v1/rgeocode?lon=${lon}&lat=${lat}&lang=cs`,
+      { headers }
     )
 
-    const geoData = await geoResponse.json()
+    const geo = await geoResponse.json()
 
-    // Hledání POI v okolí
     const poiResponse = await fetch(
-      `https://api.mapy.cz/v1/suggest?lon=${lon}&lat=${lat}&limit=5`,
-      {
-        headers: {
-          'X-Mapy-Api-Key': process.env.MAPY_API_KEY
-        }
-      }
+      `https://api.mapy.cz/v1/geocode?query=${encodeURIComponent(gps)}&type=regional,poi,coordinate&limit=10&lang=cs`,
+      { headers }
     )
 
-    const poiData = await poiResponse.json()
+    const poi = await poiResponse.json()
 
     res.status(200).json({
-      geo: geoData,
-      poi: poiData
+      geo,
+      poi
     })
-
   } catch (err) {
     res.status(500).json({
       error: 'Chyba API',
