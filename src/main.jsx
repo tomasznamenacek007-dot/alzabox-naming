@@ -5,9 +5,20 @@ function App() {
   const [gps, setGps] = useState('')
   const [vysledek, setVysledek] = useState('')
 
+  function vytvorNazev(adresa) {
+    if (!adresa) return 'Neznámé místo'
+
+    let text = adresa
+
+    text = text.replace(/AlzaBox/gi, '')
+    text = text.replace(/\s+/g, ' ').trim()
+
+    return text
+  }
+
   async function generovatNazev() {
     if (!gps) {
-      setVysledek('Zadej GPS souřadnice')
+      setVysledek('Zadej GPS')
       return
     }
 
@@ -18,26 +29,28 @@ function App() {
 
       const data = await response.json()
 
-      console.log('Mapy.cz odpověď:', data)
+      console.log(data)
 
-      const adresa =
-        data?.items?.[0]?.name ||
-        data?.items?.[0]?.label ||
-        data?.result?.label ||
-        data?.features?.[0]?.properties?.label ||
-        JSON.stringify(data)
+      const item = data?.items?.[0]
 
-      let nazev = adresa
-        .replace(/AlzaBox/gi, '')
-        .replace(/,/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
+      if (!item) {
+        setVysledek('Nenalezena lokalita')
+        return
+      }
 
-      setVysledek(nazev)
+      const label =
+        item.name ||
+        item.label ||
+        item.address?.formatted ||
+        'Neznámé místo'
+
+      const finalNazev = vytvorNazev(label)
+
+      setVysledek(finalNazev)
 
     } catch (err) {
       console.error(err)
-      setVysledek('Chyba při načítání map')
+      setVysledek('Chyba při načítání')
     }
   }
 
@@ -45,23 +58,35 @@ function App() {
     <div style={{ fontFamily: 'Arial', padding: '40px' }}>
       <h1>Generátor názvů boxů</h1>
 
-      <p>Aplikace běží správně 🙂</p>
-
       <input
         value={gps}
         onChange={(e) => setGps(e.target.value)}
         placeholder="50.0874511,14.420671"
-        style={{ padding: '10px', width: '300px' }}
+        style={{
+          padding: '10px',
+          width: '320px',
+          marginRight: '10px'
+        }}
       />
 
       <button
         onClick={generovatNazev}
-        style={{ marginLeft: '10px', padding: '10px' }}
+        style={{
+          padding: '10px'
+        }}
       >
         Generovat název
       </button>
 
-      <h2 style={{ marginTop: '30px' }}>{vysledek}</h2>
+      <div
+        style={{
+          marginTop: '30px',
+          fontSize: '24px',
+          fontWeight: 'bold'
+        }}
+      >
+        {vysledek}
+      </div>
     </div>
   )
 }
