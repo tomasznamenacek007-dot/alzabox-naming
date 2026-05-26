@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const geo = await geoResponse.json()
 
     const poiResponse = await fetch(
-      `https://api.mapy.cz/v1/geocode?query=${encodeURIComponent(gps)}&type=regional,poi,coordinate&limit=10&lang=cs`,
+      `https://api.mapy.cz/v1/suggest?lat=${lat}&lon=${lon}&limit=10&type=poi`,
       { headers }
     )
 
