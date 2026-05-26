@@ -5,15 +5,27 @@ function App() {
   const [gps, setGps] = useState('')
   const [vysledek, setVysledek] = useState('')
 
-  function vytvorNazev(adresa) {
-    if (!adresa) return 'Neznámé místo'
+  function vytvorNazev(data) {
+    const geoItem = data?.geo?.items?.[0]
+    const poiItem = data?.poi?.items?.[0]
 
-    let text = adresa
+    const adresa =
+      geoItem?.name ||
+      geoItem?.label ||
+      geoItem?.address?.formatted ||
+      ''
 
-    text = text.replace(/AlzaBox/gi, '')
-    text = text.replace(/\s+/g, ' ').trim()
+    const poi =
+      poiItem?.name ||
+      poiItem?.title ||
+      poiItem?.label ||
+      ''
 
-    return text
+    if (poi && adresa) return `${adresa} (${poi})`
+    if (poi) return poi
+    if (adresa) return adresa
+
+    return 'Nenalezena lokalita'
   }
 
   async function generovatNazev() {
@@ -28,25 +40,9 @@ function App() {
       )
 
       const data = await response.json()
-
       console.log(data)
 
-      const item = data?.items?.[0]
-
-      if (!item) {
-        setVysledek('Nenalezena lokalita')
-        return
-      }
-
-      const label =
-        item.name ||
-        item.label ||
-        item.address?.formatted ||
-        'Neznámé místo'
-
-      const finalNazev = vytvorNazev(label)
-
-      setVysledek(finalNazev)
+      setVysledek(vytvorNazev(data))
 
     } catch (err) {
       console.error(err)
@@ -69,22 +65,11 @@ function App() {
         }}
       />
 
-      <button
-        onClick={generovatNazev}
-        style={{
-          padding: '10px'
-        }}
-      >
+      <button onClick={generovatNazev} style={{ padding: '10px' }}>
         Generovat název
       </button>
 
-      <div
-        style={{
-          marginTop: '30px',
-          fontSize: '24px',
-          fontWeight: 'bold'
-        }}
-      >
+      <div style={{ marginTop: '30px', fontSize: '24px', fontWeight: 'bold' }}>
         {vysledek}
       </div>
     </div>
